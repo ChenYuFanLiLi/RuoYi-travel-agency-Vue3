@@ -154,8 +154,12 @@
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['travel:plan:edit']">
-            修改
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                     v-hasPermi="['travel:plan:edit']">修改
+          </el-button>
+          <el-button link type="primary" icon="Edit" @click="planDetail(scope.row)"
+                     v-hasPermi="['travel:detail:edit']">明细记录
+
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['travel:plan:remove']">删除
@@ -227,15 +231,28 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog :title="planDetailTitle" v-model="planDetailView" width="90rem" destroy-on-close>
+      <PlanDetail-modal :detailPlanID="detailPlanID">
+      </PlanDetail-modal>
+    </el-dialog>
+
   </div>
 </template>
 
 <script setup name="Plan">
 import {listPlan, getPlan, delPlan, addPlan, updatePlan, listItinerary} from "@/api/travel/plan";
+import {ref} from "vue";
+import PlanDetailModal from '../planDetail/planDetailModal.vue'
 
 const {proxy} = getCurrentInstance();
 
 const itineraryList = ref([]);
+
+const planDetailView = ref(false);
+const planDetailTitle = ref("");
+const detailPlanID = ref(null);
+
 const planList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -301,6 +318,13 @@ function getListItinerary() {
   listItinerary(queryParams.value).then(response => {
     itineraryList.value = response;
   });
+}
+
+/** 明细记录 */
+function planDetail(row) {
+  planDetailTitle.value = row.groupNumber;
+  planDetailView.value = true;
+  detailPlanID.value = row.id;
 }
 
 /** 查询操作计划列表 */

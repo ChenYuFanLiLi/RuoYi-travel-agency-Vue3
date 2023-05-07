@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询行程列表
+// 查询未选择行程列表
 export function listItinerary() {
   return request({
     url: '/travel/plan/listItinerary',
