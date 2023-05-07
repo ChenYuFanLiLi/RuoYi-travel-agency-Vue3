@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="8rem">
       <el-form-item label="组团社名称" prop="groupName">
         <el-input
             v-model="queryParams.groupName"
@@ -79,15 +79,15 @@
 
     <el-table v-loading="loading" :data="bookingList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="收客记录ID" align="center" prop="id"/>
-      <el-table-column label="收客信息ID" align="center" prop="bookingInfoId"/>
-      <el-table-column label="行程ID" align="center" prop="itineraryId"/>
-      <el-table-column label="组团社ID" align="center" prop="groupId"/>
-      <el-table-column label="留位人ID" align="center" prop="bookerId"/>
-      <el-table-column label="预定数量" align="center" prop="bookingCount"/>
+<!--      <el-table-column label="收客记录ID" align="center" prop="id"/>-->
+<!--&lt;!&ndash;      <el-table-column label="收客信息ID" align="center" prop="bookingInfoId"/>&ndash;&gt;-->
+<!--      <el-table-column label="行程ID" align="center" prop="itineraryId"/>-->
+<!--      <el-table-column label="组团社ID" align="center" prop="groupId"/>-->
+<!--      <el-table-column label="留位人ID" align="center" prop="bookerId"/>-->
       <el-table-column label="组团社名称" align="center" prop="groupName"/>
       <el-table-column label="组团社负责人姓名" align="center" prop="groupLeaderName"/>
       <el-table-column label="组团社负责人电话" align="center" prop="groupLeaderPhone"/>
+      <el-table-column label="预定数量" align="center" prop="bookingCount"/>
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -110,34 +110,77 @@
     />
 
     <!-- 添加或修改收客记录对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="bookingRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="40rem" append-to-body>
+      <el-form ref="bookingRef" :model="form" :rules="rules" label-width="100px">
 <!--        <el-form-item label="收客信息ID" prop="bookingInfoId">-->
 <!--          <el-input v-model="form.bookingInfoId" placeholder="请输入收客信息ID"/>-->
 <!--        </el-form-item>-->
-        <el-form-item  label="行程ID" prop="itineraryId">
-          <el-input v-model="form.itineraryId" placeholder="请输入行程ID"/>
-        </el-form-item>
-        <el-form-item label="组团社ID" prop="groupId">
-          <el-input v-model="form.groupId" placeholder="请输入组团社ID"/>
-        </el-form-item>
-        <el-form-item label="留位人ID" prop="bookerId">
-          <el-input v-model="form.bookerId" placeholder="请输入留位人ID"/>
-        </el-form-item>
-        <el-form-item label="预定数量" prop="bookingCount">
-          <el-input v-model="form.bookingCount" placeholder="请输入预定数量"/>
-        </el-form-item>
-        <el-form-item label="组团社名称" prop="groupName">
+        <el-form-item v-show="false" label="组团社名称" prop="groupName">
           <el-input v-model="form.groupName" placeholder="请输入组团社名称"/>
         </el-form-item>
-        <el-form-item label="组团社负责人姓名" prop="groupLeaderName">
-          <el-input v-model="form.groupLeaderName" placeholder="请输入组团社负责人姓名"/>
+        <el-form-item v-show="false" label="行程ID" prop="itineraryId">
+          <el-input v-model="form.itineraryId" placeholder="请输入行程ID"/>
         </el-form-item>
-        <el-form-item label="组团社负责人电话" prop="groupLeaderPhone">
-          <el-input v-model="form.groupLeaderPhone" placeholder="请输入组团社负责人电话"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-row>
+              <el-col :span="20">
+                <el-form-item label="组团社" prop="groupId">
+                  <el-select v-model="form.groupId"
+                             filterable
+                             remote
+                             reserve-keyword
+                             placeholder="请选择组团社"
+                             :remote-method="remoteSelectGroup"
+                             @change="setGroupInfo"
+                             :loading="loading">
+                    <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-button style="margin-left: 1rem" circle @click="showAddGroup" :icon="Plus"></el-button>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="留位人" prop="bookerId">
+              <el-select v-model="form.bookerId"
+                         filterable
+                         remote
+                         reserve-keyword
+                         placeholder="请选择留位人"
+                         :remote-method="remoteSelectUser"
+                         :loading="loading">
+                <el-option v-for="item in userList" :key="item.userId" :label="item.nickName" :value="item.userId">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="负责人姓名" prop="groupLeaderName">
+              <el-input v-model="form.groupLeaderName" placeholder="请输入组团社负责人姓名"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="负责人电话" prop="groupLeaderPhone">
+              <el-input v-model="form.groupLeaderPhone" placeholder="请输入组团社负责人电话"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="预定数量" prop="bookingCount">
+              <el-input v-model.number="form.bookingCount" type="number" placeholder="请输入预定数量"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注"/>
+          <el-input type="textarea" v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -147,17 +190,35 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog title="新增组团社" v-model="addGroupModal" width="35rem" append-to-body>
+      <add-group ref="addGroupRef"></add-group>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="saveGroup">确 定</el-button>
+          <el-button @click="cancelGroup">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="BookingModal">
+import {Plus} from "@element-plus/icons-vue";
 import {listBooking, getBooking, delBooking, addBooking, updateBooking} from "@/api/travel/booking";
 import {defineProps} from "vue";
+import {getUser, listUser} from "@/api/system/user";
+import {getGroup, listGroup} from "@/api/travel/group";
+import AddGroup from "@/views/travel/group/addGroup.vue";
 const props = defineProps({itineraryId:Number})
 
 const {proxy} = getCurrentInstance();
 const bookingList = ref([]);
+const userList = ref([]);
+const groupList = ref([]);
+
 const open = ref(false);
+const addGroupModal = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
 const ids = ref([]);
@@ -165,6 +226,8 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+
+const addGroupRef = ref();
 
 const data = reactive({
   form: {},
@@ -181,12 +244,6 @@ const data = reactive({
     groupLeaderPhone: null,
   },
   rules: {
-    itineraryId: [
-      {required: true, message: "行程ID不能为空", trigger: "blur"}
-    ],
-    groupId: [
-      {required: true, message: "组团社ID不能为空", trigger: "blur"}
-    ],
     bookingCount: [
       {required: true, message: "预定数量不能为空", trigger: "blur"}
     ],
@@ -206,6 +263,80 @@ const data = reactive({
 });
 
 const {queryParams, form, rules} = toRefs(data);
+
+/**
+ * 远程搜索用户
+ * @param nickName 用户名
+ */
+function remoteSelectUser(nickName){
+  let userQueryParams = {
+    nickName:nickName
+  }
+  listUser(userQueryParams).then(res=>{
+    userList.value = res.rows
+  })
+}
+
+/**
+ * 远程搜索组团社
+ * @param groupName
+ */
+function remoteSelectGroup(groupName){
+  let groupQueryParams = {
+    groupName: groupName
+  }
+  listGroup(groupQueryParams).then(res=>{
+    groupList.value = res.rows
+  })
+}
+
+/**
+ * 自动填入与组团社相关信息
+ * @param groupValue
+ */
+function setGroupInfo(groupValue){
+  groupList.value.forEach(item=>{
+    if (item.id===groupValue){
+      form.value.groupName = item.groupName;
+      form.value.groupLeaderName =  item.groupLeaderName;
+      form.value.groupLeaderPhone = item.groupLeaderPhone;
+    }
+  })
+}
+
+
+/**
+ * 保存组团社
+ */
+async function saveGroup() {
+  const response = await addGroupRef.value.submitForm();
+  form.value.groupName = response.data.groupName;
+  form.value.groupLeaderName =  response.data.groupLeaderName;
+  form.value.groupLeaderPhone = response.data.groupLeaderPhone;
+  form.value.groupId = response.data.id;
+  getGroup(response.data.id).then(res=>{
+    groupList.value = [res.data]
+  })
+  addGroupRef.value.reset();
+  addGroupModal.value = false;
+}
+
+/**
+ * 打开新增组团社modal
+ */
+function showAddGroup(){
+  addGroupModal.value=true
+}
+
+/**
+ * 关闭新增组团社modal
+ */
+function cancelGroup(){
+  addGroupRef.value.reset()
+  addGroupModal.value=false;
+}
+
+
 /** 查询收客记录列表 */
 function getList() {
   loading.value = true;
@@ -273,6 +404,7 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "添加收客记录";
+
 }
 
 /** 修改按钮操作 */
@@ -281,6 +413,12 @@ function handleUpdate(row) {
   const _id = row.id || ids.value
   getBooking(_id).then(response => {
     form.value = response.data;
+    getUser(form.value.bookerId).then(res=>{
+      userList.value = [res.data]
+    })
+    getGroup(form.value.groupId).then(res=>{
+      groupList.value = [res.data]
+    })
     open.value = true;
     title.value = "修改收客记录";
   });
