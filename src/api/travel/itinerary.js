@@ -1,5 +1,9 @@
 import request from '@/utils/request'
 
+export function downloadDocument(url,fileName){
+  window.location.href=import.meta.env.VITE_APP_BASE_API+url;
+}
+
 // 查询行程列表
 export function listItinerary(query) {
   return request({

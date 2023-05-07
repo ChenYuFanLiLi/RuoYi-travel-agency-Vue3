@@ -9,6 +9,14 @@ export function listCustomer(query) {
   })
 }
 
+export function listCustomerByItineraryId(query){
+  return request({
+    url: '/travel/customer/listByItineraryId',
+    method: 'get',
+    params:query
+  })
+}
+
 // 查询客户信息详细
 export function getCustomer(id) {
   return request({

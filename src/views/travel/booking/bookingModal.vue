@@ -94,6 +94,9 @@
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['travel:booking:edit']">修改
           </el-button>
+          <el-button link type="primary" icon="View" @click="showCustomer(scope.row)"
+                     v-hasPermi="['travel:customer:view']">客户信息
+          </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['travel:booking:remove']">删除
           </el-button>
@@ -190,7 +193,7 @@
         </div>
       </template>
     </el-dialog>
-
+    <!--    添加组团社-->
     <el-dialog title="新增组团社" v-model="addGroupModal" width="35rem" append-to-body>
       <add-group ref="addGroupRef"></add-group>
       <template #footer>
@@ -199,6 +202,10 @@
           <el-button @click="cancelGroup">取 消</el-button>
         </div>
       </template>
+    </el-dialog>
+<!--    添加或修改客户信息-->
+    <el-dialog title="客户信息" v-model="customerModal" width="80rem" destroy-on-close>
+      <customer-modal :groupId="groupId" :bookingId="bookingId"></customer-modal>
     </el-dialog>
   </div>
 </template>
@@ -210,6 +217,7 @@ import {defineProps} from "vue";
 import {getUser, listUser} from "@/api/system/user";
 import {getGroup, listGroup} from "@/api/travel/group";
 import AddGroup from "@/views/travel/group/addGroup.vue";
+import CustomerModal from "@/views/travel/customer/customerModal.vue";
 const props = defineProps({itineraryId:Number})
 
 const {proxy} = getCurrentInstance();
@@ -219,6 +227,7 @@ const groupList = ref([]);
 
 const open = ref(false);
 const addGroupModal = ref(false);
+const customerModal = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
 const ids = ref([]);
@@ -226,6 +235,8 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const groupId = ref(0);
+const bookingId = ref(0);
 
 const addGroupRef = ref();
 
@@ -270,7 +281,8 @@ const {queryParams, form, rules} = toRefs(data);
  */
 function remoteSelectUser(nickName){
   let userQueryParams = {
-    nickName:nickName
+    nickName:nickName,
+    pageSize:5000
   }
   listUser(userQueryParams).then(res=>{
     userList.value = res.rows
@@ -283,7 +295,8 @@ function remoteSelectUser(nickName){
  */
 function remoteSelectGroup(groupName){
   let groupQueryParams = {
-    groupName: groupName
+    groupName: groupName,
+    pageSize:5000
   }
   listGroup(groupQueryParams).then(res=>{
     groupList.value = res.rows
@@ -345,6 +358,17 @@ function getList() {
     total.value = response.total;
     loading.value = false;
   });
+}
+
+
+/**
+ * 客户信息
+ * @param row 单条记录
+ */
+function showCustomer(row){
+  customerModal.value = true;
+  groupId.value=row.groupId;
+  bookingId.value=row.id;
 }
 
 function reloadBooking(itineraryId){

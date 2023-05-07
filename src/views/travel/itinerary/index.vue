@@ -93,17 +93,24 @@
         </template>
       </el-table-column>
       <el-table-column label="收客社简述" align="center" prop="clientBrief"/>
-      <el-table-column label="行程文档" align="center" prop="itineraryDocument"/>
+      <el-table-column label="行程文档" align="center" prop="itineraryDocument">
+        <template #default="scope">
+          <el-button v-if="scope.row.itineraryDocument!=null&&scope.row.itineraryDocument!=''" @click="downloadDocument(scope.row.itineraryDocument,scope.row.itineraryName+'行程文档')">点击下载</el-button>
+          <div v-else>未上传文档</div>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="250">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="350">
         <template #default="scope">
           <div class="table-button">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                        v-hasPermi="['travel:itinerary:edit']">修改
             </el-button>
-            <el-button link type="primary" icon="Edit" @click="booking(scope.row)"
+            <el-button link type="primary" icon="Edit" @click="bookingViewShow(scope.row)"
                       v-hasPermi="['travel:booking:edit']">收客记录
-
+            </el-button>
+            <el-button link type="primary" icon="User" @click="customerViewShow(scope.row)"
+                      v-hasPermi="['travel:customer:view']">客户信息
             </el-button>
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                        v-hasPermi="['travel:itinerary:remove']">删除
@@ -124,6 +131,11 @@
     <el-dialog :title="bookingTitle" v-model="bookingView" width="90rem"  destroy-on-close>
       <booking-modal :itineraryId="bookingItineraryId">
       </booking-modal>
+    </el-dialog>
+
+    <el-dialog :title="customerTitle" v-model="customerView" width="90rem" destroy-on-close>
+      <customer-by-itinerary :itineraryId="customerItineraryId">
+      </customer-by-itinerary>
     </el-dialog>
 
     <!-- 添加或修改行程对话框 -->
@@ -190,7 +202,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="行程文档" prop="itineraryDocument">
-              <el-input v-model="form.itineraryDocument" type="textarea" placeholder="请输入内容"/>
+              <file-upload limit="1" file-size="500" v-model="form.itineraryDocument"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -209,10 +221,13 @@
 </template>
 
 <script setup name="Itinerary">
-import {listItinerary, getItinerary, delItinerary, addItinerary, updateItinerary} from "@/api/travel/itinerary";
+import {listItinerary, getItinerary, delItinerary, addItinerary, updateItinerary,downloadDocument} from "@/api/travel/itinerary";
 import {listBooking, getBooking, delBooking, addBooking, updateBooking} from "@/api/travel/booking";
 import BookingModal from '../booking/bookingModal.vue'
 import {ref} from "vue";
+import FileUpload from "@/components/FileUpload/index.vue";
+import {download} from "@/utils/request";
+import CustomerByItinerary from "@/views/travel/customer/customerByItinerary.vue";
 
 const {proxy} = getCurrentInstance();
 
@@ -231,6 +246,10 @@ const title = ref("");
 const bookingView = ref(false);
 const bookingTitle = ref("");
 const bookingItineraryId = ref(null);
+
+const customerTitle = ref("")
+const customerView = ref(false)
+const customerItineraryId = ref(0);
 
 const data = reactive({
   form: {},
@@ -265,6 +284,8 @@ const data = reactive({
 });
 
 const {queryParams, form, rules} = toRefs(data);
+
+
 
 /** 查询行程列表 */
 function getList() {
@@ -380,10 +401,20 @@ function handleDelete(row) {
  * @param row 行程
  * @constructor
  */
-function booking(row){
+function bookingViewShow(row){
   bookingTitle.value=row.itineraryName;
   bookingView.value=true;
   bookingItineraryId.value=row.id;
+}
+
+/**
+ * 显示客户记录
+ * @param row
+ */
+function customerViewShow(row) {
+  customerTitle.value = row.itineraryName;
+  customerView.value=true
+  customerItineraryId.value = row.id;
 }
 
 /** 导出按钮操作 */
