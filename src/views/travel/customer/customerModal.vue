@@ -83,8 +83,11 @@
 <!--      <el-table-column label="收客记录ID" align="center" prop="bookingId"/>-->
 <!--      <el-table-column label="组团社ID" align="center" prop="groupId"/>-->
       <el-table-column label="客户姓名" align="center" prop="customerName"/>
-      <el-table-column label="证件类型" align="center" prop="customerIdType"/>
-      <el-table-column label="证件号码" align="center" prop="customerIdNumber"/>
+      <el-table-column label="证件类型" align="center" prop="customerIdType">
+        <template #default="scope">
+          <dict-tag :options="travel_customer_idtype" :value="scope.row.customerIdType"/>
+        </template>
+      </el-table-column>      <el-table-column label="证件号码" align="center" prop="customerIdNumber"/>
       <el-table-column label="联系方式" align="center" prop="customerContactInfo"/>
       <el-table-column label="用房信息" align="center" prop="customerRoomInfo"/>
       <el-table-column label="备注" align="center" prop="remark"/>
@@ -120,6 +123,17 @@
         <el-form-item label="客户姓名" prop="customerName">
           <el-input v-model="form.customerName" placeholder="请输入客户姓名"/>
         </el-form-item>
+        <el-form-item label="证件类型" prop="customerIdType">
+          <el-select v-model="form.customerIdType" placeholder="请选择证件类型" clearable>
+            <el-option
+                v-for="dict in travel_customer_idtype"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="证件号码" prop="customerIdNumber">
           <el-input v-model="form.customerIdNumber" placeholder="请输入证件号码"/>
         </el-form-item>
@@ -147,6 +161,8 @@
 import {listCustomer, getCustomer, delCustomer, addCustomer, updateCustomer} from "@/api/travel/customer";
 
 const {proxy} = getCurrentInstance();
+const {travel_customer_idtype} = proxy.useDict('travel_customer_idtype');
+
 const props= defineProps({groupId:Number,bookingId:Number});
 const customerList = ref([]);
 const open = ref(false);
