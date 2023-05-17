@@ -133,6 +133,7 @@
       </booking-modal>
     </el-dialog>
 
+<!--    客户信息-->
     <el-dialog :title="customerTitle" v-model="customerView" width="90rem" destroy-on-close>
       <customer-by-itinerary :itineraryId="customerItineraryId">
       </customer-by-itinerary>

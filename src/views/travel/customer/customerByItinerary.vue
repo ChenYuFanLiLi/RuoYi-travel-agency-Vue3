@@ -67,6 +67,16 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+            type="info"
+            plain
+            icon="Upload"
+            @click="handleImport"
+            v-hasPermi="['travel:customer:import']"
+        >导入
+        </el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
             type="warning"
             plain
             icon="Download"
@@ -83,6 +93,7 @@
 <!--      <el-table-column label="客户信息ID" align="center" prop="id"/>-->
 <!--      <el-table-column label="收客记录ID" align="center" prop="bookingId"/>-->
 <!--      <el-table-column label="组团社ID" align="center" prop="groupId"/>-->
+      <el-table-column label="组团社" align="center" prop="groupName"></el-table-column>
       <el-table-column label="客户姓名" align="center" prop="customerName"/>
       <el-table-column label="证件类型" align="center" prop="customerIdType">
         <template #default="scope">
@@ -116,12 +127,6 @@
     <!-- 添加或修改客户信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="customerRef" :model="form" :rules="rules" label-width="80px">
-<!--        <el-form-item label="收客记录ID" prop="bookingId">-->
-<!--          <el-input v-model="form.bookingId" placeholder="请输入收客记录ID"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="组团社ID" prop="groupId">-->
-<!--          <el-input v-model="form.groupId" placeholder="请输入组团社ID"/>-->
-<!--        </el-form-item>-->
         <el-form-item label="客户姓名" prop="customerName">
           <el-input v-model="form.customerName" placeholder="请输入客户姓名"/>
         </el-form-item>
@@ -156,6 +161,36 @@
         </div>
       </template>
     </el-dialog>
+    <el-dialog :title="upload.title" v-model="upload.open" width="300px" append-to-body>
+      <el-upload
+          ref="uploadRef"
+          :limit="1"
+          accept=".xlsx, .xls"
+          :headers="upload.headers"
+          :action="upload.url+'?'+upload.params"
+          :disabled="upload.isUploading"
+          :on-progress="handleFileUploadProgress"
+          :on-success="handleFileSuccess"
+          :auto-upload="false"
+          drag
+      >
+        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__text">在此处上传的客户信息均视为散客，如需指定收客社请在收客记录中上传</div>
+        <template #tip>
+          <div class="el-upload__tip text-center">
+            <span>仅允许导入xls、xlsx格式文件。</span>
+            <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;" @click="importTemplate">下载模板</el-link>
+          </div>
+        </template>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitFileForm">确 定</el-button>
+          <el-button @click="upload.open = false">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -169,9 +204,11 @@ import {
   listCustomerByItineraryId
 } from "@/api/travel/customer";
 import DictTag from "@/components/DictTag/index.vue";
+import {defineProps} from "vue";
+import {getToken} from "@/utils/auth";
 
 const {proxy} = getCurrentInstance();
-
+const props = defineProps({itineraryId:Number})
 const {travel_customer_idtype} = proxy.useDict('travel_customer_idtype');
 
 const customerList = ref([]);
@@ -184,6 +221,21 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 
+const upload = reactive({
+  //是否显示
+  open: false,
+  //标题
+  title: "",
+  //是否禁用上传
+  updateSupport: 0,
+  // 参数
+  params: '',
+  //请求头
+  headers:{Authorization : "Bearer " + getToken()},
+  //上传地址
+  url: import.meta.env.VITE_APP_BASE_API + "/travel/customer/importData"
+})
+
 const data = reactive({
   form: {},
   queryParams: {
@@ -191,7 +243,7 @@ const data = reactive({
     pageSize: 10,
     bookingId: null,
     groupId: null,
-    itineraryId: 1,
+    itineraryId: props.itineraryId,
     customerName: null,
     customerIdType: null,
     customerIdNumber: null,
@@ -239,6 +291,7 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
+    itineraryId:null,
     bookingId: null,
     groupId: null,
     customerName: null,
@@ -278,7 +331,9 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset();
   open.value = true;
+  form.value.itineraryId = props.itineraryId
   title.value = "添加客户信息";
+
 }
 
 /** 修改按钮操作 */
@@ -331,6 +386,38 @@ function handleExport() {
     ...queryParams.value
   }, `customer_${new Date().getTime()}.xlsx`)
 }
+
+/**导入按钮*/
+function handleImport(){
+  upload.title = "客户导入";
+  upload.open = true;
+  let params = new URLSearchParams();
+  params.append('itineraryId',props.itineraryId);
+  upload.params = params.toString();
+}
+
+/**下载导入模板*/
+function importTemplate(){
+  proxy.download('travel/customer/importTemplate',{},
+      '客户信息模板.xlsx');
+}
+
+/**文件上传中处理 */
+const handleFileUploadProgress = (event, file, fileList) => {
+  upload.isUploading = true;
+};
+/** 文件上传成功处理 */
+const handleFileSuccess = (response, file, fileList) => {
+  upload.open = false;
+  upload.isUploading = false;
+  proxy.$refs["uploadRef"].handleRemove(file);
+  proxy.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+  getList();
+};
+
+function submitFileForm() {
+  proxy.$refs["uploadRef"].submit();
+};
 
 getList();
 </script>
