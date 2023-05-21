@@ -244,6 +244,7 @@
 import {listPlan, getPlan, delPlan, addPlan, updatePlan, listItinerary} from "@/api/travel/plan";
 import {ref} from "vue";
 import PlanDetailModal from '../planDetail/planDetailModal.vue'
+import request from "@/utils/request";
 
 const {proxy} = getCurrentInstance();
 
@@ -443,6 +444,14 @@ function handleExport() {
   proxy.download('travel/plan/export', {
     ...queryParams.value
   }, `plan_${new Date().getTime()}.xlsx`)
+  // console.log(queryParams.value)
+  // request({
+  //   url: 'travel/plan/export',
+  //   method: 'post',
+  //   params: queryParams.value,
+  // }).then((res)=>{
+  //   window.location.href = "http://localhost:8080/profile/download/"+res.msg;
+  // })
 }
 
 getList();
