@@ -1,6 +1,13 @@
 import request from '@/utils/request'
 
-// 查询成本核算，用于记录团队成本核算信息列表
+export function listItinerary() {
+  return request({
+    url: '/travel/accounting/listItinerary',
+    method: 'get',
+  })
+}
+
+// 查询成本核算列表
 export function listAccounting(query) {
   return request({
     url: '/travel/accounting/list',
@@ -9,7 +16,7 @@ export function listAccounting(query) {
   })
 }
 
-// 查询成本核算，用于记录团队成本核算信息详细
+// 查询成本核算详细
 export function getAccounting(id) {
   return request({
     url: '/travel/accounting/' + id,
@@ -17,7 +24,7 @@ export function getAccounting(id) {
   })
 }
 
-// 新增成本核算，用于记录团队成本核算信息
+// 新增成本核算
 export function addAccounting(data) {
   return request({
     url: '/travel/accounting',
@@ -26,7 +33,7 @@ export function addAccounting(data) {
   })
 }
 
-// 修改成本核算，用于记录团队成本核算信息
+// 修改成本核算
 export function updateAccounting(data) {
   return request({
     url: '/travel/accounting',
@@ -35,7 +42,7 @@ export function updateAccounting(data) {
   })
 }
 
-// 删除成本核算，用于记录团队成本核算信息
+// 删除成本核算
 export function delAccounting(id) {
   return request({
     url: '/travel/accounting/' + id,

@@ -1,44 +1,44 @@
 import request from '@/utils/request'
 
 // 查询成本核算明细列表
-export function listDetail(query) {
+export function listCostdetail(query) {
   return request({
-    url: '/travel/detail/list',
+    url: '/travel/costdetail/list',
     method: 'get',
     params: query
   })
 }
 
 // 查询成本核算明细详细
-export function getDetail(id) {
+export function getCostdetail(id) {
   return request({
-    url: '/travel/detail/' + id,
+    url: '/travel/costdetail/' + id,
     method: 'get'
   })
 }
 
 // 新增成本核算明细
-export function addDetail(data) {
+export function addCostdetail(data) {
   return request({
-    url: '/travel/detail',
+    url: '/travel/costdetail',
     method: 'post',
     data: data
   })
 }
 
 // 修改成本核算明细
-export function updateDetail(data) {
+export function updateCostdetail(data) {
   return request({
-    url: '/travel/detail',
+    url: '/travel/costdetail',
     method: 'put',
     data: data
   })
 }
 
 // 删除成本核算明细
-export function delDetail(id) {
+export function delCostdetail(id) {
   return request({
-    url: '/travel/detail/' + id,
+    url: '/travel/costdetail/' + id,
     method: 'delete'
   })
 }
