@@ -57,6 +57,7 @@
         </div>
       </el-form-item>
     </el-form>
+    <div v-if="sysTest" class="sys-test">测试服务器，数据不予保留，请做好备份。</div>
     <!--  底部  -->
     <div class="el-login-footer">
       <span></span>
@@ -95,6 +96,9 @@ const captchaEnabled = ref(true);
 // 注册开关
 const register = ref(false);
 const redirect = ref(undefined);
+//测试服提示
+const sysTest = ref(true);
+
 
 function handleLogin() {
   proxy.$refs.loginRef.validate(valid => {
@@ -211,5 +215,11 @@ getCookie();
 .login-code-img {
   height: 40px;
   padding-left: 12px;
+}
+.sys-test{
+  position: absolute;
+  top: 700px;
+  color: white;
+  font-size: 1.2rem;
 }
 </style>

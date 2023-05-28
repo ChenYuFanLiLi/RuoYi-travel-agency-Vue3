@@ -79,14 +79,16 @@
 
     <el-table v-loading="loading" :data="itineraryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="行程ID" align="center" prop="id"/>
+<!--      <el-table-column label="行程ID" align="center" prop="id"/>-->
       <el-table-column label="行程名称" align="center" prop="itineraryName"/>
       <el-table-column label="行程简称" align="center" prop="itineraryShortName"/>
-<!--      <el-table-column label="线路名称" align="center" prop="scheduleName"/>-->
-<!--      <el-table-column label="线路天数" align="center" prop="scheduleDays"/>-->
-<!--      <el-table-column label="线路说明" align="center" prop="scheduleDescription"/>-->
+
       <el-table-column label="行程安排" align="center" prop="itinerarySchedule"/>
       <el-table-column label="计划数量" align="center" prop="planQuantity"/>
+      <el-table-column label="占位预留" align="center" prop="itineraryObligate"/>
+      <el-table-column label="确认或已有名单" align="center" prop="itineraryConfirm"/>
+
+
       <el-table-column label="发团日期" align="center" prop="departureDate" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.departureDate, '{y}-{m}-{d}') }}</span>
