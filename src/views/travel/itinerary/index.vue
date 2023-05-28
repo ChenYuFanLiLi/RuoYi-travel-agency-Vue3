@@ -79,21 +79,17 @@
 
     <el-table v-loading="loading" :data="itineraryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-<!--      <el-table-column label="行程ID" align="center" prop="id"/>-->
-      <el-table-column label="行程名称" align="center" prop="itineraryName"/>
-      <el-table-column label="行程简称" align="center" prop="itineraryShortName"/>
-
-      <el-table-column label="行程安排" align="center" prop="itinerarySchedule"/>
-      <el-table-column label="计划数量" align="center" prop="planQuantity"/>
-      <el-table-column label="占位预留" align="center" prop="itineraryObligate"/>
-      <el-table-column label="确认或已有名单" align="center" prop="itineraryConfirm"/>
-
-
       <el-table-column label="发团日期" align="center" prop="departureDate" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.departureDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="行程名称" align="center" prop="itineraryName"/>
+      <el-table-column label="计划数量" align="center" prop="planQuantity"/>
+      <el-table-column label="占位预留" align="center" prop="itineraryObligate"/>
+      <el-table-column label="确认或已有名单" align="center" prop="itineraryConfirm"/>
+      <el-table-column label="余位" align="center" prop="itineraryRemaining"/>
+      <el-table-column label="超收" align="center" prop="itineraryOverCollection"/>
       <el-table-column label="收客社简述" align="center" prop="clientBrief"/>
       <el-table-column label="行程文档" align="center" prop="itineraryDocument">
         <template #default="scope">
@@ -101,6 +97,7 @@
           <div v-else>未上传文档</div>
         </template>
       </el-table-column>
+
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="350">
         <template #default="scope">
@@ -120,6 +117,10 @@
           </div>
         </template>
       </el-table-column>
+      <!--      <el-table-column label="行程ID" align="center" prop="id"/>-->
+      <!--      <el-table-column label="行程简称" align="center" prop="itineraryShortName"/>-->
+
+      <!--      <el-table-column label="行程安排" align="center" prop="itinerarySchedule"/>-->
     </el-table>
 
     <pagination
