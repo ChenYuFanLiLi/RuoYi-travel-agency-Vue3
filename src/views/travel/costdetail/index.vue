@@ -1,14 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-                  <el-form-item label="计划项目" prop="planDetailId">
-                    <el-input
-                        v-model="queryParams.planDetailId"
-                        placeholder="请输入计划项目"
-                        clearable
-                        @keyup.enter="handleQuery"
-                    />
-                  </el-form-item>
                   <el-form-item label="项目ID" prop="projectId">
                     <el-input
                         v-model="queryParams.projectId"
@@ -118,7 +110,7 @@
             plain
             icon="Plus"
             @click="handleAdd"
-            v-hasPermi="['travel:detail:add']"
+            v-hasPermi="['travel:costdetail:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -128,7 +120,7 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
-            v-hasPermi="['travel:detail:edit']"
+            v-hasPermi="['travel:costdetail:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -138,7 +130,7 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
-            v-hasPermi="['travel:detail:remove']"
+            v-hasPermi="['travel:costdetail:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -147,16 +139,16 @@
             plain
             icon="Download"
             @click="handleExport"
-            v-hasPermi="['travel:detail:export']"
+            v-hasPermi="['travel:costdetail:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="detailList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="costdetailList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
               <el-table-column label="主键" align="center" prop="id" />
-              <el-table-column label="计划项目" align="center" prop="planDetailId" />
+              <el-table-column label="行程ID" align="center" prop="travelScheduleId" />
               <el-table-column label="项目ID" align="center" prop="projectId" />
               <el-table-column label="项目类型" align="center" prop="planType" />
               <el-table-column label="项目名称" align="center" prop="projectName" />
@@ -173,8 +165,8 @@
               <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['travel:detail:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['travel:detail:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['travel:costdetail:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['travel:costdetail:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -189,10 +181,7 @@
 
     <!-- 添加或修改成本核算明细对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="detailRef" :model="form" :rules="rules" label-width="80px">
-                        <el-form-item label="计划项目" prop="planDetailId">
-                          <el-input v-model="form.planDetailId" placeholder="请输入计划项目" />
-                        </el-form-item>
+      <el-form ref="costdetailRef" :model="form" :rules="rules" label-width="80px">
                         <el-form-item label="项目ID" prop="projectId">
                           <el-input v-model="form.projectId" placeholder="请输入项目ID" />
                         </el-form-item>
@@ -243,12 +232,12 @@
   </div>
 </template>
 
-<script setup name="Detail">
-  import { listDetail, getDetail, delDetail, addDetail, updateDetail } from "@/api/travel/detail";
+<script setup name="Costdetail">
+  import { listCostdetail, getCostdetail, delCostdetail, addCostdetail, updateCostdetail } from "@/api/travel/costdetail";
 
   const { proxy } = getCurrentInstance();
 
-  const detailList = ref([]);
+  const costdetailList = ref([]);
   const open = ref(false);
   const loading = ref(true);
   const showSearch = ref(true);
@@ -263,7 +252,7 @@
     queryParams: {
       pageNum: 1,
       pageSize: 10,
-                    planDetailId: null,
+                    travelScheduleId: null,
                     projectId: null,
                     planType: null,
                     projectName: null,
@@ -279,8 +268,8 @@
                     costVoucher: null,
     },
     rules: {
-                    planDetailId: [
-                { required: true, message: "计划项目不能为空", trigger: "blur" }
+                    travelScheduleId: [
+                { required: true, message: "行程ID不能为空", trigger: "change" }
               ],
                     projectName: [
                 { required: true, message: "项目名称不能为空", trigger: "blur" }
@@ -332,8 +321,8 @@
   /** 查询成本核算明细列表 */
   function getList() {
     loading.value = true;
-    listDetail(queryParams.value).then(response => {
-            detailList.value = response.rows;
+    listCostdetail(queryParams.value).then(response => {
+            costdetailList.value = response.rows;
       total.value = response.total;
       loading.value = false;
     });
@@ -370,7 +359,7 @@
                     updateBy: null,
                     remark: null
     };
-    proxy.resetForm("detailRef");
+    proxy.resetForm("costdetailRef");
   }
 
   /** 搜索按钮操作 */
@@ -403,7 +392,7 @@
   function handleUpdate(row) {
     reset();
     const _id = row.id || ids.value
-    getDetail(_id).then(response => {
+    getCostdetail(_id).then(response => {
       form.value = response.data;
       open.value = true;
       title.value = "修改成本核算明细";
@@ -412,16 +401,16 @@
 
   /** 提交按钮 */
   function submitForm() {
-    proxy.$refs["detailRef"].validate(valid => {
+    proxy.$refs["costdetailRef"].validate(valid => {
       if (valid) {
         if (form.value.id != null) {
-          updateDetail(form.value).then(response => {
+          updateCostdetail(form.value).then(response => {
             proxy.$modal.msgSuccess("修改成功");
             open.value = false;
             getList();
           });
         } else {
-          addDetail(form.value).then(response => {
+          addCostdetail(form.value).then(response => {
             proxy.$modal.msgSuccess("新增成功");
             open.value = false;
             getList();
@@ -435,7 +424,7 @@
   function handleDelete(row) {
     const _ids = row.id || ids.value;
     proxy.$modal.confirm('是否确认删除成本核算明细编号为"' + _ids + '"的数据项？').then(function() {
-      return delDetail(_ids);
+      return delCostdetail(_ids);
     }).then(() => {
       getList();
       proxy.$modal.msgSuccess("删除成功");
@@ -444,9 +433,9 @@
 
   /** 导出按钮操作 */
   function handleExport() {
-    proxy.download('travel/detail/export', {
+    proxy.download('travel/costdetail/export', {
       ...queryParams.value
-    }, `detail_${new Date().getTime()}.xlsx`)
+    }, `costdetail_${new Date().getTime()}.xlsx`)
   }
 
   getList();
