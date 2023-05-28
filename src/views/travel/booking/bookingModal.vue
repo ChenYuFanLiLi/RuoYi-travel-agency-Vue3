@@ -88,6 +88,7 @@
       <el-table-column label="组团社负责人姓名" align="center" prop="groupLeaderName"/>
       <el-table-column label="组团社负责人电话" align="center" prop="groupLeaderPhone"/>
       <el-table-column label="预定数量" align="center" prop="bookingCount"/>
+      <el-table-column label="实际数量" align="center" prop="customerCount"/>
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">

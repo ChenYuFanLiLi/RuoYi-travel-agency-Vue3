@@ -90,7 +90,7 @@
       <el-table-column label="确认或已有名单" align="center" prop="itineraryConfirm"/>
       <el-table-column label="余位" align="center" prop="itineraryRemaining"/>
       <el-table-column label="超收" align="center" prop="itineraryOverCollection"/>
-      <el-table-column label="收客社简述" align="center" prop="clientBrief"/>
+      <el-table-column label="收客社简述" align="center" prop="clientBrief" width="300" />
       <el-table-column label="行程文档" align="center" prop="itineraryDocument">
         <template #default="scope">
           <el-button v-if="scope.row.itineraryDocument!=null&&scope.row.itineraryDocument!=''" @click="downloadDocument(scope.row.itineraryDocument,scope.row.itineraryName+'行程文档')">点击下载</el-button>
@@ -98,7 +98,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="备注" align="center" prop="remark"/>
+      <el-table-column label="备注" align="center" prop="remark" width="200"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="350">
         <template #default="scope">
           <div class="table-button">
@@ -159,27 +159,37 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="线路名称" prop="scheduleName">
-              <el-input v-model="form.scheduleName" placeholder="请输入线路名称"/>
+            <el-form-item label="线路" prop="itinerarySchedule">
+              <el-select v-model="form.itinerarySchedule"
+                         filterable
+                         remote
+                         reserve-keyword
+                         placeholder="请选择线路"
+                         :remote-method="remoteSelectSchedule"
+                         @change="setSchedule"
+                         :loading="loading">
+                <el-option v-for="item in scheduleList" :key="item.id" :label="item.scheduleName" :value="item.id"></el-option>
+              </el-select>
+<!--              <el-input v-model="form.scheduleName" placeholder="选择线路"/>-->
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="线路天数" prop="scheduleDays">
-              <el-input v-model="form.scheduleDays" placeholder="请输入线路天数"/>
+              <el-input v-model="form.scheduleDays" readonly placeholder="请输入线路天数"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="线路说明" prop="scheduleDescription">
-              <el-input v-model="form.scheduleDescription" type="textarea" placeholder="请输入内容"/>
+              <el-input v-model="form.scheduleDescription" readonly type="textarea" placeholder="请输入内容"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="行程安排" prop="itinerarySchedule">
-              <el-input v-model="form.itinerarySchedule" type="textarea" placeholder="请输入内容"/>
-            </el-form-item>
-          </el-col>
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="行程安排" prop="itinerarySchedule">-->
+<!--              <el-input v-model="form.itinerarySchedule" readonly type="textarea" placeholder="请输入内容"/>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
         </el-row>
         <el-row>
           <el-col :span="12">
@@ -206,7 +216,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="行程文档" prop="itineraryDocument">
-              <file-upload limit="1" file-size="500" v-model="form.itineraryDocument"/>
+              <file-upload :limit="1" :file-size="500" v-model="form.itineraryDocument"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -232,6 +242,7 @@ import {ref} from "vue";
 import FileUpload from "@/components/FileUpload/index.vue";
 import {download} from "@/utils/request";
 import CustomerByItinerary from "@/views/travel/customer/customerByItinerary.vue";
+import {getSchedule, listSchedule} from "@/api/travel/schedule";
 
 const {proxy} = getCurrentInstance();
 
@@ -244,6 +255,8 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+
+const scheduleList = ref([]);
 
 
 // const bookingRef = ref(null);
@@ -289,6 +302,35 @@ const data = reactive({
 
 const {queryParams, form, rules} = toRefs(data);
 
+
+/***
+ * 远程搜索线路
+ * @param scheduleName 线路名
+ */
+function remoteSelectSchedule(scheduleName){
+  let scheduleQueryParams={
+    scheduleName:scheduleName,
+    pageSize: 5000
+  }
+  listSchedule(scheduleQueryParams).then(res=>{
+    scheduleList.value = res.rows
+  })
+}
+
+/**
+ * 修改线路信息
+ * @param scheduleValue
+ */
+function setSchedule(scheduleValue){
+  scheduleList.value.forEach(item=>{
+    if (item.id===scheduleValue){
+      form.value.itinerarySchedule = item.id
+      form.value.scheduleDescription = item.scheduleDescription
+      form.value.scheduleDays = item.scheduleDays
+      form.value.scheduleName = item.scheduleName
+    }
+  })
+}
 
 
 /** 查询行程列表 */
@@ -364,6 +406,9 @@ function handleUpdate(row) {
     form.value = response.data;
     open.value = true;
     title.value = "修改行程";
+    getSchedule(response.data.itinerarySchedule).then((res)=>{
+      scheduleList.value = res.data;
+    })
   });
 }
 
