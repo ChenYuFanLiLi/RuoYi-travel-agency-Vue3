@@ -120,7 +120,7 @@
             plain
             icon="Plus"
             @click="handleAdd"
-            v-hasPermi="['travel:planDetail:add']"
+            v-hasPermi="['travel:plan:add']"
         >新增
         </el-button>
       </el-col>
@@ -131,7 +131,7 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
-            v-hasPermi="['travel:planDetail:edit']"
+            v-hasPermi="['travel:plan:edit']"
         >修改
         </el-button>
       </el-col>
@@ -142,7 +142,7 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
-            v-hasPermi="['travel:planDetail:remove']"
+            v-hasPermi="['travel:plan:remove']"
         >删除
         </el-button>
       </el-col>
@@ -152,7 +152,7 @@
             plain
             icon="Download"
             @click="handleExport"
-            v-hasPermi="['travel:planDetail:export']"
+            v-hasPermi="['travel:plan:export']"
         >导出
         </el-button>
       </el-col>
@@ -183,10 +183,10 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['travel:planDetail:edit']">修改
+                     v-hasPermi="['travel:plan:edit']">修改
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                     v-hasPermi="['travel:planDetail:remove']">删除
+                     v-hasPermi="['travel:plan:remove']">删除
           </el-button>
         </template>
       </el-table-column>

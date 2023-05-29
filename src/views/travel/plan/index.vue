@@ -158,8 +158,10 @@
                      v-hasPermi="['travel:plan:edit']">修改
           </el-button>
           <el-button link type="primary" icon="Edit" @click="planDetail(scope.row)"
-                     v-hasPermi="['travel:detail:edit']">明细记录
-
+                     v-hasPermi="['travel:plan:edit']">项目明细
+          </el-button>
+          <el-button link type="primary" icon="Edit" @click="cashDetail(scope.row)"
+                     v-hasPermi="['travel:plan:edit']">现收明细
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['travel:plan:remove']">删除
@@ -237,6 +239,11 @@
       </PlanDetail-modal>
     </el-dialog>
 
+    <el-dialog :title="cashDetailTitle" v-model="cashDetailView" width="90rem" destroy-on-close>
+      <CashDetail-modal :detailPlanID="detailPlanID">
+      </CashDetail-modal>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -244,6 +251,7 @@
 import {listPlan, getPlan, delPlan, addPlan, updatePlan, listItinerary} from "@/api/travel/plan";
 import {ref} from "vue";
 import PlanDetailModal from '../planDetail/planDetailModal.vue'
+import CashDetailModal from '../cashdetail/cashDetailModal.vue'
 import request from "@/utils/request";
 
 const {proxy} = getCurrentInstance();
@@ -253,6 +261,9 @@ const itineraryList = ref([]);
 const planDetailView = ref(false);
 const planDetailTitle = ref("");
 const detailPlanID = ref(null);
+
+const cashDetailView = ref(false);
+const cashDetailTitle = ref("");
 
 const planList = ref([]);
 const open = ref(false);
@@ -321,10 +332,17 @@ function getListItinerary() {
   });
 }
 
-/** 明细记录 */
+/** 项目明细 */
 function planDetail(row) {
   planDetailTitle.value = row.groupNumber;
   planDetailView.value = true;
+  detailPlanID.value = row.id;
+}
+
+/** 现收明细 */
+function cashDetail(row) {
+  cashDetailTitle.value = row.groupNumber;
+  cashDetailView.value = true;
   detailPlanID.value = row.id;
 }
 

@@ -97,7 +97,10 @@
                      v-hasPermi="['travel:accounting:edit']">修改
           </el-button>
           <el-button link type="primary" icon="Edit" @click="costDetail(scope.row)"
-                     v-hasPermi="['travel:accounting:edit']">明细记录
+                     v-hasPermi="['travel:accounting:edit']">项目明细
+          </el-button>
+          <el-button link type="primary" icon="Edit" @click="cashCostDetail(scope.row)"
+                     v-hasPermi="['travel:accounting:edit']">现收明细
           </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['travel:accounting:remove']">删除
@@ -140,15 +143,15 @@
         <el-form-item label="团队编号" prop="teamNumber">
           <el-input v-model="form.teamNumber" placeholder="请选择行程" disabled/>
         </el-form-item>
-        <el-form-item label="合计转出" prop="costTotalTransfer">
-          <el-input v-model="form.costTotalTransfer" placeholder="请输入合计转出"/>
-        </el-form-item>
-        <el-form-item label="导游垫款" prop="costGuideAdvance">
-          <el-input v-model="form.costGuideAdvance" placeholder="请输入导游垫款"/>
-        </el-form-item>
-        <el-form-item label="报账明细" prop="costReimbursementDetail">
-          <el-input v-model="form.costReimbursementDetail" placeholder="请输入报账明细"/>
-        </el-form-item>
+<!--        <el-form-item label="合计转出" prop="costTotalTransfer">-->
+<!--          <el-input v-model="form.costTotalTransfer" placeholder="请输入合计转出"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="导游垫款" prop="costGuideAdvance">-->
+<!--          <el-input v-model="form.costGuideAdvance" placeholder="请输入导游垫款"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="报账明细" prop="costReimbursementDetail">-->
+<!--          <el-input v-model="form.costReimbursementDetail" placeholder="请输入报账明细"/>-->
+<!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注"/>
         </el-form-item>
@@ -166,6 +169,11 @@
       </CostDetail-modal>
     </el-dialog>
 
+    <el-dialog :title="cashCostDetailTitle" v-model="cashCostDetailView" width="90rem" destroy-on-close>
+      <CashCostDetail-modal :detailCostID="detailCostID">
+      </CashCostDetail-modal>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -181,6 +189,7 @@ import {
 import {ref} from "vue";
 
 import CostDetailModal from '../costdetail/costDetailModal.vue'
+import CashCostDetailModal from '../cashdetail/cashCostDetailModal.vue'
 
 const {proxy} = getCurrentInstance();
 
@@ -189,6 +198,9 @@ const itineraryList = ref([]);
 const costDetailTitle = ref("");
 const costDetailView = ref(false);
 const detailCostID = ref(null);
+
+const cashCostDetailTitle = ref("");
+const cashCostDetailView = ref(false);
 
 const accountingList = ref([]);
 const open = ref(false);
@@ -229,9 +241,17 @@ function getListItinerary() {
   });
 }
 
+/** 项目明细 */
 function costDetail(row) {
   costDetailTitle.value = row.tourNumber;
   costDetailView.value = true;
+  detailCostID.value = row.id;
+}
+
+/** 现收明细 */
+function cashCostDetail(row) {
+  cashCostDetailTitle.value = row.tourNumber;
+  cashCostDetailView.value = true;
   detailCostID.value = row.id;
 }
 
