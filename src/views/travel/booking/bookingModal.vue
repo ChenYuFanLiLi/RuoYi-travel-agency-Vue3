@@ -429,7 +429,8 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "添加收客记录";
-
+  remoteSelectGroup("")
+  remoteSelectUser("")
 }
 
 /** 修改按钮操作 */

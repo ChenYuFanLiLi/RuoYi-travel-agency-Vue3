@@ -102,7 +102,7 @@
     />
 
     <!-- 添加或修改线路信息管理对话框 -->
-    <el-dialog :title="title" v-model="open" width="900px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="1440px" append-to-body>
       <el-form ref="scheduleRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="线路名称" prop="scheduleName">
           <el-input v-model="form.scheduleName" placeholder="请输入线路名称"/>
@@ -134,9 +134,9 @@
               <el-input v-model="scope.row.index" style="text-align: center" placeholder="请输入行程安排顺序"/>
             </template>
           </el-table-column>
-          <el-table-column label="行程安排" prop="routingOrder" width="150">
+          <el-table-column label="行程安排" prop="routingOrder" width="600">
             <template #default="scope">
-              <el-input v-model="scope.row.routingContent" placeholder="请输入行程安排"/>
+              <el-input type="textarea" v-model="scope.row.routingContent" placeholder="请输入行程安排"/>
             </template>
           </el-table-column>
           <el-table-column label="住宿地" prop="routingPlace" width="150">
@@ -149,7 +149,7 @@
               <el-input v-model="scope.row.routingMeal" placeholder="请输入餐饮"/>
             </template>
           </el-table-column>
-          <el-table-column label="备注" prop="remark" width="150">
+          <el-table-column label="备注" prop="remark" width="300">
             <template #default="scope">
               <el-input v-model="scope.row.remark" placeholder="请输入备注"/>
             </template>

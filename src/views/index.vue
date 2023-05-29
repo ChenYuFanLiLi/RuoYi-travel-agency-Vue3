@@ -1,6 +1,24 @@
 <template>
   <div class="app-container home">
-    <div style="height: 300px;width: 300px;" id="main"></div>
+    <el-row :gutter="10">
+      <el-col :span="12">
+        <el-card>
+          <template #header>
+            <div style="font-size: 2rem">客户数量</div>
+          </template>
+          <div style="height: 400px;width: auto" id="customerLineChart"></div>
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card>
+          <template #header>
+            <div style="font-size: 2rem">行程数量</div>
+          </template>
+          <div style="height: 400px;width: auto" id="itineraryLineChart"></div>
+        </el-card>
+      </el-col>
+    </el-row>
+
   </div>
 </template>
 
@@ -10,30 +28,92 @@ import {onMounted} from "vue";
 const version = ref('3.8.5')
 
 import * as echarts from 'echarts';
+import {getCustomerLineChart, getItineraryLineChart} from "@/api/system";
 
 onMounted(()=>{
-
-// 基于准备好的dom，初始化echarts实例
-  var myChart = echarts.init(document.getElementById("main"));
-// // 绘制图表
-  myChart.setOption({
-    title: {
-      text: ''
-    },
-    tooltip: {},
-    xAxis: {
-      data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
-    },
-    yAxis: {},
-    series: [
-      {
-        name: '销量',
-        type: 'bar',
-        data: [5, 20, 36, 10, 10, 20]
-      }
-    ]
-  });
+  initCustomerLineChart();
+  initItineraryLineChart();
 })
+
+function initCustomerLineChart(){
+  var customerLineChart = echarts.init(document.getElementById("customerLineChart"));
+  getCustomerLineChart().then((res)=>{
+    let option = {
+      xAxis: {
+        type: 'category',
+        data: res.data.month
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: res.data.num,
+          type: 'line',
+          itemStyle:{normal:{label:{show:true}}},
+          markPoint:{
+            data:[
+              {
+                type:'max',
+                name:"最大接待人数"
+              }
+            ]
+          },
+          markLine:{
+            data:[
+              {
+                type:'average',
+                name:'平均值'
+              }
+            ]
+          }
+        }
+      ]
+    };
+    customerLineChart.setOption(option);
+  })
+}
+function initItineraryLineChart(){
+  var itineraryLineChart = echarts.init(document.getElementById("itineraryLineChart"));
+  getItineraryLineChart().then((res)=>{
+    let option = {
+      xAxis: {
+        type: 'category',
+        boundaryGap:false,
+        data: res.data.month
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: res.data.num,
+          type: 'line',
+          areaStyle:{},
+          smooth: true,
+          itemStyle:{normal:{label:{show:true}}},
+          markPoint:{
+            data:[
+              {
+                type:'max',
+                name:"最大行程数"
+              }
+            ]
+          },
+          markLine:{
+            data:[
+              {
+                type:'average',
+                name:'平均值'
+              }
+            ]
+          }
+        }
+      ]
+    };
+    itineraryLineChart.setOption(option);
+  })
+}
 
 
 function goTarget(url) {

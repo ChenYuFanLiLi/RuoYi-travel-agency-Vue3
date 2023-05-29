@@ -160,6 +160,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="线路" prop="itinerarySchedule">
+              <el-input v-model="form.itinerarySchedule" style="display: none"></el-input>
               <el-select v-model="form.itinerarySchedule"
                          filterable
                          remote
@@ -396,6 +397,7 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "添加行程";
+  remoteSelectSchedule("")
 }
 
 /** 修改按钮操作 */
@@ -407,7 +409,7 @@ function handleUpdate(row) {
     open.value = true;
     title.value = "修改行程";
     getSchedule(response.data.itinerarySchedule).then((res)=>{
-      scheduleList.value = res.data;
+      scheduleList.value = [res.data];
     })
   });
 }
