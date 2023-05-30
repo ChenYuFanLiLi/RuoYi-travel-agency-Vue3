@@ -87,9 +87,9 @@
         </template>
       </el-table-column>
       <el-table-column label="团队编号" align="center" prop="teamNumber"/>
+      <el-table-column label="报账明细" align="center" prop="costReimbursementDetail"/>
       <el-table-column label="合计转出" align="center" prop="costTotalTransfer"/>
       <el-table-column label="导游垫款" align="center" prop="costGuideAdvance"/>
-      <el-table-column label="报账明细" align="center" prop="costReimbursementDetail"/>
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -186,7 +186,7 @@ import {
   updateAccounting,
   listItinerary
 } from "@/api/travel/accounting";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 
 import CostDetailModal from '../costdetail/costDetailModal.vue'
 import CashCostDetailModal from '../cashdetail/cashCostDetailModal.vue'
@@ -383,6 +383,18 @@ function handleExport() {
     ...queryParams.value
   }, `accounting_${new Date().getTime()}.xlsx`)
 }
+
+watch(costDetailView,(newValue,oldValue)=>{
+  if(!newValue){
+    getList();
+  }
+})
+
+watch(cashCostDetailView,(newValue,oldValue)=>{
+  if(!newValue){
+    getList();
+  }
+})
 
 getList();
 </script>

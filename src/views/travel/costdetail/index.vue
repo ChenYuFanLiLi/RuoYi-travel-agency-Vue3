@@ -1,6 +1,22 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+                  <el-form-item label="成本核算ID" prop="operationCostId">
+                    <el-input
+                        v-model="queryParams.operationCostId"
+                        placeholder="请输入成本核算ID"
+                        clearable
+                        @keyup.enter="handleQuery"
+                    />
+                  </el-form-item>
+                  <el-form-item label="行程ID" prop="travelScheduleId">
+                    <el-input
+                        v-model="queryParams.travelScheduleId"
+                        placeholder="请输入行程ID"
+                        clearable
+                        @keyup.enter="handleQuery"
+                    />
+                  </el-form-item>
                   <el-form-item label="项目ID" prop="projectId">
                     <el-input
                         v-model="queryParams.projectId"
@@ -89,14 +105,6 @@
                         @keyup.enter="handleQuery"
                     />
                   </el-form-item>
-                  <el-form-item label="凭据" prop="costVoucher">
-                    <el-input
-                        v-model="queryParams.costVoucher"
-                        placeholder="请输入凭据"
-                        clearable
-                        @keyup.enter="handleQuery"
-                    />
-                  </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -148,6 +156,7 @@
     <el-table v-loading="loading" :data="costdetailList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
               <el-table-column label="主键" align="center" prop="id" />
+              <el-table-column label="成本核算ID" align="center" prop="operationCostId" />
               <el-table-column label="行程ID" align="center" prop="travelScheduleId" />
               <el-table-column label="项目ID" align="center" prop="projectId" />
               <el-table-column label="项目类型" align="center" prop="planType" />
@@ -161,7 +170,11 @@
               <el-table-column label="转账" align="center" prop="costTransfer" />
               <el-table-column label="冲抵" align="center" prop="costOffset" />
               <el-table-column label="挂账" align="center" prop="costOnCredit" />
-              <el-table-column label="凭据" align="center" prop="costVoucher" />
+              <el-table-column label="凭据" align="center" prop="costVoucher" width="100">
+                <template #default="scope">
+                  <image-preview :src="scope.row.costVoucher" :width="50" :height="50"/>
+                </template>
+              </el-table-column>
               <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -182,6 +195,12 @@
     <!-- 添加或修改成本核算明细对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="costdetailRef" :model="form" :rules="rules" label-width="80px">
+                        <el-form-item label="成本核算ID" prop="operationCostId">
+                          <el-input v-model="form.operationCostId" placeholder="请输入成本核算ID" />
+                        </el-form-item>
+                        <el-form-item label="行程ID" prop="travelScheduleId">
+                          <el-input v-model="form.travelScheduleId" placeholder="请输入行程ID" />
+                        </el-form-item>
                         <el-form-item label="项目ID" prop="projectId">
                           <el-input v-model="form.projectId" placeholder="请输入项目ID" />
                         </el-form-item>
@@ -216,7 +235,7 @@
                           <el-input v-model="form.costOnCredit" placeholder="请输入挂账" />
                         </el-form-item>
                         <el-form-item label="凭据" prop="costVoucher">
-                          <el-input v-model="form.costVoucher" placeholder="请输入凭据" />
+                          <image-upload v-model="form.costVoucher"/>
                         </el-form-item>
                         <el-form-item label="备注" prop="remark">
                           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -252,6 +271,7 @@
     queryParams: {
       pageNum: 1,
       pageSize: 10,
+                    operationCostId: null,
                     travelScheduleId: null,
                     projectId: null,
                     planType: null,
@@ -268,8 +288,8 @@
                     costVoucher: null,
     },
     rules: {
-                    travelScheduleId: [
-                { required: true, message: "行程ID不能为空", trigger: "change" }
+                    operationCostId: [
+                { required: true, message: "成本核算ID不能为空", trigger: "blur" }
               ],
                     projectName: [
                 { required: true, message: "项目名称不能为空", trigger: "blur" }
@@ -301,18 +321,6 @@
                     costOnCredit: [
                 { required: true, message: "挂账不能为空", trigger: "blur" }
               ],
-                    createTime: [
-                { required: true, message: "创建时间不能为空", trigger: "blur" }
-              ],
-                    createBy: [
-                { required: true, message: "创建人不能为空", trigger: "blur" }
-              ],
-                    updateTime: [
-                { required: true, message: "更新时间不能为空", trigger: "blur" }
-              ],
-                    updateBy: [
-                { required: true, message: "更新人不能为空", trigger: "blur" }
-              ],
     }
   });
 
@@ -338,7 +346,7 @@
   function reset() {
     form.value = {
                     id: null,
-                    planDetailId: null,
+                    operationCostId: null,
                     travelScheduleId: null,
                     projectId: null,
                     planType: null,
