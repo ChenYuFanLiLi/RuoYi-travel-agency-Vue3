@@ -293,6 +293,9 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
+  scheduleRoutingList.value.forEach(item=>{
+    item.routingOrder = item.index;
+  })
   proxy.$refs["scheduleRef"].validate(valid => {
     if (valid) {
       form.value.scheduleRoutingList = scheduleRoutingList.value;

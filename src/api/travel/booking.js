@@ -9,6 +9,14 @@ export function listBooking(query) {
   })
 }
 
+export function salesConfirmationBooking(itineraryId,bookingId){
+  return request(({
+    url: '/travel/itinerary/salesConfirmationBooking',
+    method:'get',
+    params:{itineraryId: itineraryId, bookingId: bookingId}
+  }))
+}
+
 // 查询收客记录详细
 export function getBooking(id) {
   return request({

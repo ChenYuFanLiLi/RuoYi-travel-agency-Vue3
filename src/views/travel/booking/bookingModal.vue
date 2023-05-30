@@ -98,6 +98,9 @@
           <el-button link type="primary" icon="View" @click="showCustomer(scope.row)"
                      v-hasPermi="['travel:customer:view']">客户信息
           </el-button>
+          <el-button link type="primary" icon="Update" @click="exportSalesConfirmation(scope.row)">
+            导出确认表
+          </el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['travel:booking:remove']">删除
           </el-button>
@@ -213,7 +216,14 @@
 
 <script setup name="BookingModal">
 import {Plus} from "@element-plus/icons-vue";
-import {listBooking, getBooking, delBooking, addBooking, updateBooking} from "@/api/travel/booking";
+import {
+  listBooking,
+  getBooking,
+  delBooking,
+  addBooking,
+  updateBooking,
+  salesConfirmationBooking
+} from "@/api/travel/booking";
 import {defineProps} from "vue";
 import {getUser, listUser} from "@/api/system/user";
 import {getGroup, listGroup} from "@/api/travel/group";
@@ -274,7 +284,19 @@ const data = reactive({
   }
 });
 
+
+
 const {queryParams, form, rules} = toRefs(data);
+
+/**
+ * 导出销售项目确认表
+ * @param row
+ */
+function exportSalesConfirmation(row){
+  let itineraryId = props.itineraryId
+  proxy.download('/travel/itinerary/salesConfirmationBooking',{itineraryId: itineraryId, bookingId: row.id},`${row.groupName}确认表.xlsx`)
+
+}
 
 /**
  * 远程搜索用户
