@@ -74,6 +74,28 @@
         >导出
         </el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="warning"
+            plain
+            icon="Download"
+            :disabled="single"
+            @click="exportSalesConfirmation"
+            v-hasPermi="['travel:booking:export']"
+        >导出确认表
+        </el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="warning"
+            plain
+            icon="Download"
+            :disabled="single"
+            @click="salesSettlementBooking"
+            v-hasPermi="['travel:booking:export']"
+        >导出结算表
+        </el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -289,13 +311,35 @@ const data = reactive({
 const {queryParams, form, rules} = toRefs(data);
 
 /**
+ * 导出销售项目结算表
+ * @param row
+ */
+function salesSettlementBooking(row){
+  let itineraryId = props.itineraryId
+  let bookingId = row.id||ids.value[0];
+  let groupName = getBookingById(bookingId).groupName;
+  proxy.download('/travel/itinerary/salesSettlementBooking',{itineraryId: itineraryId, bookingId: bookingId},`${groupName}结算表.xlsx`)
+}
+
+/**
  * 导出销售项目确认表
  * @param row
  */
 function exportSalesConfirmation(row){
   let itineraryId = props.itineraryId
-  proxy.download('/travel/itinerary/salesConfirmationBooking',{itineraryId: itineraryId, bookingId: row.id},`${row.groupName}确认表.xlsx`)
+  let bookingId = row.id||ids.value[0];
+  let groupName = getBookingById(bookingId).groupName;
+  proxy.download('/travel/itinerary/salesConfirmationBooking',{itineraryId: itineraryId, bookingId: bookingId},`${groupName}确认表.xlsx`)
+}
 
+function getBookingById(id){
+  let booking
+  bookingList.value.forEach(item=>{
+    if (item.id ==id){
+      booking = item;
+    }
+  })
+  return booking;
 }
 
 /**

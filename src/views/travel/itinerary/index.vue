@@ -70,8 +70,20 @@
             plain
             icon="Download"
             @click="handleExport"
+            :disabled="single"
             v-hasPermi="['travel:itinerary:export']"
         >导出
+        </el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="success"
+            plain
+            icon="Download"
+            :disabled="single"
+            @click="exportSalesConfirmation"
+            v-hasPermi="['travel:itinerary:export']"
+        >导出确认表
         </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -79,12 +91,12 @@
 
     <el-table v-loading="loading" :data="itineraryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="发团日期" align="center" prop="departureDate" width="180">
+      <el-table-column label="发团日期" align="center" prop="departureDate" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.departureDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="行程名称" align="center" prop="itineraryName"/>
+      <el-table-column label="行程名称" align="center" prop="itineraryName" width="300"/>
       <el-table-column label="计划数量" align="center" prop="planQuantity"/>
       <el-table-column label="占位预留" align="center" prop="itineraryObligate"/>
       <el-table-column label="确认或已有名单" align="center" prop="itineraryConfirm"/>
@@ -99,17 +111,17 @@
       </el-table-column>
 
       <el-table-column label="备注" align="center" prop="remark" width="200"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="350">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100">
         <template #default="scope">
           <div class="table-button">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                       v-hasPermi="['travel:itinerary:edit']">修改
-            </el-button>
             <el-button link type="primary" icon="Edit" @click="bookingViewShow(scope.row)"
                       v-hasPermi="['travel:booking:edit']">收客记录
             </el-button>
             <el-button link type="primary" icon="User" @click="customerViewShow(scope.row)"
                       v-hasPermi="['travel:customer:view']">客户信息
+            </el-button>
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                       v-hasPermi="['travel:itinerary:edit']">修改
             </el-button>
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                        v-hasPermi="['travel:itinerary:remove']">删除
@@ -117,10 +129,6 @@
           </div>
         </template>
       </el-table-column>
-      <!--      <el-table-column label="行程ID" align="center" prop="id"/>-->
-      <!--      <el-table-column label="行程简称" align="center" prop="itineraryShortName"/>-->
-
-      <!--      <el-table-column label="行程安排" align="center" prop="itinerarySchedule"/>-->
     </el-table>
 
     <pagination
@@ -160,7 +168,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="线路" prop="itinerarySchedule">
-              <el-input v-model="form.itinerarySchedule" style="display: none"></el-input>
+<!--              <el-input v-model="form.itinerarySchedule" style="display: none"></el-input>-->
               <el-select v-model="form.itinerarySchedule"
                          filterable
                          remote
@@ -304,6 +312,15 @@ const data = reactive({
 const {queryParams, form, rules} = toRefs(data);
 
 
+/**
+ * 导出销售项目确认表
+ * @param row
+ */
+function exportSalesConfirmation(row){
+  let itineraryId = row.id || ids.value[0];
+  proxy.download('/travel/itinerary/salesConfirmation',{itineraryId: itineraryId},`销售项目确认表批量.xlsx`)
+}
+
 /***
  * 远程搜索线路
  * @param scheduleName 线路名
@@ -403,7 +420,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
+    const _id = row.id || ids.value
   getItinerary(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -483,5 +500,6 @@ el-table-column{
 }
 .table-button{
   display: flex;
+  flex-direction: column;
 }
 </style>
