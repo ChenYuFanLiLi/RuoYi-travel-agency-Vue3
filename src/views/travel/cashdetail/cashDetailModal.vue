@@ -260,14 +260,14 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
-    relatedId: null,
+    relatedId: props.detailPlanID,
     cashProject: null,
     cashUnitPrice: null,
     cashUnit: null,
     cashQuantity: null,
     cashAmount: null,
     cashDiscount: null,
-    cashType: null,
+    cashType: "plan",
     createTime: null,
     createBy: null,
     updateTime: null,

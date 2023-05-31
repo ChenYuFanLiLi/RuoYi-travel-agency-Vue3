@@ -1,16 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="类型" prop="planType">
-        <el-select v-model="queryParams.planType" placeholder="请选择类型" clearable>
-          <el-option
-              v-for="dict in travel_project_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="项目名称" prop="projectName">
         <el-input
             v-model="queryParams.projectName"
@@ -76,11 +66,7 @@
       <el-table-column label="主键" align="center" prop="id"/>
       <!--              <el-table-column label="行程ID" align="center" prop="travelScheduleId" />-->
       <!--              <el-table-column label="项目ID" align="center" prop="projectId" />-->
-      <el-table-column label="类型" align="center" prop="planType">
-        <template #default="scope">
-          <dict-tag :options="travel_project_type" :value="scope.row.planType"/>
-        </template>
-      </el-table-column>
+
       <el-table-column label="项目名称" align="center" prop="projectName"/>
       <el-table-column label="项目成本" align="center" prop="projectCost"/>
       <el-table-column label="项目数量" align="center" prop="projectAmount"/>
@@ -91,7 +77,11 @@
       <el-table-column label="转账" align="center" prop="costTransfer"/>
       <el-table-column label="冲抵" align="center" prop="costOffset"/>
       <el-table-column label="挂账" align="center" prop="costOnCredit"/>
-      <el-table-column label="凭据" align="center" prop="costVoucher"/>
+      <el-table-column label="凭据" align="center" prop="costVoucher" width="100">
+        <template #default="scope">
+          <image-preview :src="scope.row.costVoucher" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -116,25 +106,9 @@
     <!-- 添加或修改成本核算明细对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="costdetailRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="项目" prop="projectId">
-          <el-select v-model="form.projectId" placeholder="请选择项目" @change="projectChange">
-            <el-option
-                v-for="project in projectList"
-                :key="project.id"
-                :label="project.projectName"
-                :value="project.id"/>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="类型" prop="planType">
-          <el-select v-model="form.planType" placeholder="请选择类型">
-            <el-option
-                v-for="dict in travel_project_type"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
+<!--        <el-form-item label="项目ID" prop="projectId">-->
+<!--          <el-input v-model="form.projectId" placeholder="请输入项目ID" />-->
+<!--        </el-form-item>-->
         <el-form-item label="项目名称" prop="projectName">
           <el-input v-model="form.projectName" placeholder="请输入项目名称"/>
         </el-form-item>
@@ -147,8 +121,8 @@
         <el-form-item label="项目单位" prop="projectUnit">
           <el-input v-model="form.projectUnit" placeholder="请输入项目单位"/>
         </el-form-item>
-        <el-form-item label="金额" prop="planAmount">
-          <el-input v-model="form.planAmount" placeholder="自动计算" disabled/>
+        <el-form-item label="金额" prop="costAmount">
+          <el-input v-model="form.costAmount" placeholder="自动计算" disabled/>
         </el-form-item>
         <el-form-item label="现金" prop="costCash">
           <el-input v-model="form.costCash" placeholder="请输入现金"/>
@@ -166,7 +140,7 @@
           <el-input v-model="form.costOnCredit" placeholder="请输入挂账"/>
         </el-form-item>
         <el-form-item label="凭据" prop="costVoucher">
-          <el-input v-model="form.costVoucher" placeholder="请输入凭据"/>
+          <image-upload v-model="form.costVoucher"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注"/>
@@ -257,18 +231,6 @@ const data = reactive({
     costOnCredit: [
       {required: true, message: "挂账不能为空", trigger: "blur"}
     ],
-    createTime: [
-      {required: true, message: "创建时间不能为空", trigger: "blur"}
-    ],
-    createBy: [
-      {required: true, message: "创建人不能为空", trigger: "blur"}
-    ],
-    updateTime: [
-      {required: true, message: "更新时间不能为空", trigger: "blur"}
-    ],
-    updateBy: [
-      {required: true, message: "更新人不能为空", trigger: "blur"}
-    ],
   }
 });
 
@@ -295,7 +257,7 @@ function projectChange(value) {
 /** 自动计算金额 */
 function calcAmount() {
   if(data.form.projectCost != ''&& data.form.projectAmount != ''){
-    data.form.planAmount = data.form.projectCost * data.form.projectAmount;
+    data.form.costAmount = data.form.projectCost * data.form.projectAmount;
   }
 }
 

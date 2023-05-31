@@ -151,8 +151,11 @@
       <el-table-column label="车牌号码" align="center" prop="carNumber"/>
       <el-table-column label="计调姓名" align="center" prop="plannerName"/>
       <el-table-column label="计调电话" align="center" prop="plannerPhone"/>
+      <el-table-column label="现金合计" align="center" prop="planItemTotal"/>
+      <el-table-column label="现收合计" align="center" prop="planCashTotal"/>
+      <el-table-column label="导游领现" align="center" prop="planGuideCash"/>
       <el-table-column label="备注" align="center" prop="remark"/>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['travel:plan:edit']">修改
@@ -249,7 +252,7 @@
 
 <script setup name="Plan">
 import {listPlan, getPlan, delPlan, addPlan, updatePlan, listItinerary} from "@/api/travel/plan";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import PlanDetailModal from '../planDetail/planDetailModal.vue'
 import CashDetailModal from '../cashdetail/cashDetailModal.vue'
 import request from "@/utils/request";
@@ -291,6 +294,9 @@ const data = reactive({
     carNumber: null,
     plannerName: null,
     plannerPhone: null,
+    planItemTotal: null,
+    planCashTotal: null,
+    planGuideCash: null,
   },
   rules: {
     itineraryId: [
@@ -471,6 +477,18 @@ function handleExport() {
   //   window.location.href = "http://localhost:8080/profile/download/"+res.msg;
   // })
 }
+
+watch(planDetailView,(newValue,oldValue)=>{
+  if(!newValue){
+    getList();
+  }
+})
+
+watch(cashDetailView,(newValue,oldValue)=>{
+  if(!newValue){
+    getList();
+  }
+})
 
 getList();
 </script>
