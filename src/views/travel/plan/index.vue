@@ -125,6 +125,7 @@
             type="warning"
             plain
             icon="Download"
+            :disabled="single"
             @click="handleExport"
             v-hasPermi="['travel:plan:export']"
         >导出
@@ -464,18 +465,10 @@ function handleDelete(row) {
 }
 
 /** 导出按钮操作 */
-function handleExport() {
+function handleExport(row) {
   proxy.download('travel/plan/export', {
-    ...queryParams.value
-  }, `plan_${new Date().getTime()}.xlsx`)
-  // console.log(queryParams.value)
-  // request({
-  //   url: 'travel/plan/export',
-  //   method: 'post',
-  //   params: queryParams.value,
-  // }).then((res)=>{
-  //   window.location.href = "http://localhost:8080/profile/download/"+res.msg;
-  // })
+    planId:ids.value[0]
+  }, `操作计划_${new Date().getTime()}.xlsx`)
 }
 
 watch(planDetailView,(newValue,oldValue)=>{
